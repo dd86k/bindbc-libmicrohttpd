@@ -1,0 +1,7 @@
+name "bindbc-libmicrohttpd"
+description "Bindings for libmicrohttpd"
+authors "dd86k"
+copyright "Copyright © 2022, dd86k"
+license "Boost"
+
+dependency "bindbc-loader" version="~>1.0.1"

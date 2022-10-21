@@ -1,0 +1,15 @@
+name "example"
+targetType "executable"
+description "Example using libmicrohttpd"
+authors "dd86k <dd@dax.moe>"
+copyright "No rights reserved"
+license "Unlicense"
+
+dependency "bindbc-libmicrohttpd" path="../"
+dependency "bindbc-loader" version="~>1.0.1"
+
+subConfiguration "bindbc-loader" "yesBC"
+
+buildOptions "betterC" platform="dmd"
+buildOptions "betterC" platform="ldc"
+dflags "-fno-druntime" platform="gdc"

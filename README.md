@@ -2,7 +2,9 @@
 
 Unofficial dynamic and bindings for libmicrohttpd, a small HTTP daemon library.
 
-This was created rather quickly for a project, and currently supports 0.9.75.
+Versions supported:
+- 0.9.66 (Ubuntu 20.04)
+- 0.9.75 (Ubuntu 22.04)
 
 On Windows, you'll need the
 [libmicrohttpd-latest-w32-bin.zip](https://www.gnu.org/software/libmicrohttpd/) archive.
@@ -12,7 +14,7 @@ for the static configuration, the `libmicrohttpd-dev` package.
 
 # License
 
-While this package is licensed Boost, the libmicrohttpd source is licensed LGPL 2.1.
+While this package is licensed Boost, the libmicrohttpd library is licensed LGPL 2.1.
 
 libmicrohttpd Copyright:
 ```

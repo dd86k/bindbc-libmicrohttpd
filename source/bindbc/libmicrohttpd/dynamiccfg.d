@@ -17,9 +17,22 @@ enum LibMicroHTTPDSupport
     /// An older version of the library was found compared
     /// to the one configured.
     badLibrary,
-    /// Version 0.9.75-42
-    v00097542,
+    /// Version 0.9.59, c. Ubuntu 18.04, baseline
+    v000959,
+    /// Version 0.9.66, c. Ubuntu 20.04
+    v000966,
+    /// Version 0.9.75, c. Ubuntu 22.04
+    v000975,
+    /// Latest versions supported by this library
+    latest = v000975,
 }
+
+version (LibMicroHTTPD_v000975)
+    private enum BASELINE = LibMicroHTTPDSupport.v000975;
+else version (LibMicroHTTPD_v000966)
+    private enum BASELINE = LibMicroHTTPDSupport.v000966;
+else
+    private enum BASELINE = LibMicroHTTPDSupport.v000959;
 
 extern (C) @nogc nothrow
 {
@@ -449,6 +462,7 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD(const(char)* libname)
     size_t ecount = errorCount;
     //LibMicroHTTPDSupport support = LibMicroHTTPDSupport.badLibrary;
     
+    // NOTE: Commented is stuff found in master branch
     bindSymbol(lib, cast(void**)&MHD_start_daemon_va,   "MHD_start_daemon_va");
     bindSymbol(lib, cast(void**)&MHD_start_daemon,  "MHD_start_daemon");
     bindSymbol(lib, cast(void**)&MHD_quiesce_daemon,    "MHD_quiesce_daemon");
@@ -462,12 +476,10 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD(const(char)* libname)
     //bindSymbol(lib, cast(void**)&MHD_get_timeout64s,    "MHD_get_timeout64s");
     //bindSymbol(lib, cast(void**)&MHD_get_timeout_i,     "MHD_get_timeout_i");
     bindSymbol(lib, cast(void**)&MHD_run,   "MHD_run");
-    bindSymbol(lib, cast(void**)&MHD_run_wait,  "MHD_run_wait");
     bindSymbol(lib, cast(void**)&MHD_run_from_select,   "MHD_run_from_select");
     bindSymbol(lib, cast(void**)&MHD_get_connection_values,     "MHD_get_connection_values");
     bindSymbol(lib, cast(void**)&MHD_get_connection_values_n,   "MHD_get_connection_values_n");
     bindSymbol(lib, cast(void**)&MHD_set_connection_value,  "MHD_set_connection_value");
-    bindSymbol(lib, cast(void**)&MHD_set_connection_value_n,    "MHD_set_connection_value_n");
     bindSymbol(lib, cast(void**)&MHD_set_panic_func,    "MHD_set_panic_func");
     bindSymbol(lib, cast(void**)&MHD_http_unescape,     "MHD_http_unescape");
     bindSymbol(lib, cast(void**)&MHD_lookup_connection_value,   "MHD_lookup_connection_value");
@@ -482,13 +494,9 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD(const(char)* libname)
     //bindSymbol(lib, cast(void**)&MHD_create_response_from_buffer_copy,  "MHD_create_response_from_buffer_copy");
     bindSymbol(lib, cast(void**)&MHD_create_response_from_buffer_with_free_callback,
         "MHD_create_response_from_buffer_with_free_callback");
-    bindSymbol(lib, cast(void**)&MHD_create_response_from_buffer_with_free_callback_cls,
-        "MHD_create_response_from_buffer_with_free_callback_cls");
     bindSymbol(lib, cast(void**)&MHD_create_response_from_fd,   "MHD_create_response_from_fd");
-    bindSymbol(lib, cast(void**)&MHD_create_response_from_pipe,     "MHD_create_response_from_pipe");
     bindSymbol(lib, cast(void**)&MHD_create_response_from_fd64,     "MHD_create_response_from_fd64");
     bindSymbol(lib, cast(void**)&MHD_create_response_from_fd_at_offset64,   "MHD_create_response_from_fd_at_offset64");
-    bindSymbol(lib, cast(void**)&MHD_create_response_from_iovec,    "MHD_create_response_from_iovec");
     //bindSymbol(lib, cast(void**)&MHD_create_response_empty,     "MHD_create_response_empty");
     bindSymbol(lib, cast(void**)&MHD_upgrade_action,    "MHD_upgrade_action");
     bindSymbol(lib, cast(void**)&MHD_create_response_for_upgrade,   "MHD_create_response_for_upgrade");
@@ -531,12 +539,23 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD(const(char)* libname)
         bindSymbol(lib, cast(void**)&MHD_create_response_from_data, "MHD_create_response_from_data");
     }
     
+    // roughly
+    static if (BASELINE >= LibMicroHTTPDSupport.v000975)
+    {
+        bindSymbol(lib, cast(void**)&MHD_run_wait,  "MHD_run_wait");
+        bindSymbol(lib, cast(void**)&MHD_set_connection_value_n,    "MHD_set_connection_value_n");
+        bindSymbol(lib, cast(void**)&MHD_create_response_from_buffer_with_free_callback_cls,
+            "MHD_create_response_from_buffer_with_free_callback_cls");
+        bindSymbol(lib, cast(void**)&MHD_create_response_from_pipe,     "MHD_create_response_from_pipe");
+        bindSymbol(lib, cast(void**)&MHD_create_response_from_iovec,    "MHD_create_response_from_iovec");
+    }
+    
     //TODO: Check version
     //const(char)* ver = MHD_get_version();
     
     return ecount != errorCount ?
         LibMicroHTTPDSupport.badLibrary :
-        LibMicroHTTPDSupport.v00097542;
+        LibMicroHTTPDSupport.v000975;
 }
 
 private extern(C) void _d_dso_registry() {}

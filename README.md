@@ -7,8 +7,8 @@ This was created rather quickly for a project, and currently supports 0.9.75.
 On Windows, you'll need the
 [libmicrohttpd-latest-w32-bin.zip](https://www.gnu.org/software/libmicrohttpd/) archive.
 
-On Ubuntu, you'll need the `libmicrohttpd-dev` package to compile your project and
-`libmicrohttpd12` shared library package to run.
+On Ubuntu, you'll need the `libmicrohttpd12` shared library package to run. Otherwise,
+for the static configuration, the `libmicrohttpd-dev` package.
 
 # License
 

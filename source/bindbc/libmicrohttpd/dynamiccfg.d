@@ -9,16 +9,6 @@ public import bindbc.libmicrohttpd.header;
 import bindbc.loader;
 import bindbc.loader.sharedlib;
 
-version (Windows)
-    /// File of the Shared Object or Dynamic Linked Library.
-    enum libmicrohttpdFileName = "libmicrohttpd.dll";
-else version (OSX)
-    /// Ditto
-    enum libmicrohttpdFileName = "libmicrohttpd.dylib"; // assuming
-else
-    /// Ditto
-    enum libmicrohttpdFileName = "libmicrohttpd.so";
-
 /// 
 enum LibMicroHTTPDSupport
 {
@@ -420,7 +410,34 @@ public __gshared
 
 public LibMicroHTTPDSupport loadLibMicroHTTPD()
 {
-    return loadLibMicroHTTPD(libmicrohttpdFileName);
+    version (Windows)
+    {
+        static immutable const(char)*[] libraries = [
+            "libmicrohttpd.dll"
+        ];
+    }
+    else version (OSX)
+    {
+        static immutable const(char)*[] libraries = [
+            "libmicrohttpd.dylib"
+        ];
+    }
+    else
+    {
+        static immutable const(char)*[] libraries = [
+            "libmicrohttpd.so",
+            "libmicrohttpd.so.12",
+            "libmicrohttpd.so.0"
+        ];
+    }
+    
+    foreach (libname; libraries)
+    {
+        LibMicroHTTPDSupport s = loadLibMicroHTTPD(libname);
+        if (s != LibMicroHTTPDSupport.noLibrary) return s;
+    }
+    
+    return LibMicroHTTPDSupport.noLibrary;
 }
 
 public LibMicroHTTPDSupport loadLibMicroHTTPD(const(char)* libname)

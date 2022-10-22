@@ -10,6 +10,6 @@ dependency "bindbc-loader" version="~>1.0.1"
 
 subConfiguration "bindbc-loader" "yesBC"
 
-buildOptions "betterC" platform="dmd"
-buildOptions "betterC" platform="ldc"
+dflags "-betterC" platform="dmd"
+dflags "-betterC" platform="ldc"
 dflags "-fno-druntime" platform="gdc"

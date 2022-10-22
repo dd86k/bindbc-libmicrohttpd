@@ -74,7 +74,6 @@ int main(int argc, const(char) **argv)
     
     // Defaults
     ushort port = 8088;
-    const(char) *address;
     
     if (argc >= 2)
     {

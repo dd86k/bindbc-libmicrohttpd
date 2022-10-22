@@ -84,7 +84,7 @@ int main(int argc, const(char) **argv)
     printf("libmicrohttpd version: %s\n", MHD_get_version());
     
     MHD_Daemon *daemon = MHD_start_daemon(
-        MHD_USE_THREAD_PER_CONNECTION,
+        MHD_USE_THREAD_PER_CONNECTION | MHD_USE_DEBUG,
         port,
         null,
         null,
@@ -92,7 +92,10 @@ int main(int argc, const(char) **argv)
         cast(void*)PAGE,
         MHD_OPTION_END);
     if (daemon == null)
+    {
+        puts("Failed to start daemon");
         return 1;
+    }
     
     printf("Listening on 0.0.0.0:%u\n",
         MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_BIND_PORT).port);

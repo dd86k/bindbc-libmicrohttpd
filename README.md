@@ -33,7 +33,7 @@ While this package is using the Boost license, the libmicrohttpd library is
 licensed LGPL 2.1.
 
 libmicrohttpd Copyright:
-```
+```text
      Copyright (C) 2006-2021 Christian Grothoff (and other contributing authors)
      Copyright (C) 2014-2022 Evgeny Grin (Karlson2k)
 ```

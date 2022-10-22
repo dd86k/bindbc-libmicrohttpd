@@ -11,5 +11,5 @@ dependency "bindbc-loader" version="~>1.0.1"
 subConfiguration "bindbc-loader" "yesBC"
 
 dflags "-betterC" platform="dmd"
-dflags "-betterC" platform="ldc"
 dflags "-fno-druntime" platform="gdc"
+dflags "-betterC" platform="ldc"

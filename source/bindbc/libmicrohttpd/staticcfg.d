@@ -1,6 +1,7 @@
 module bindbc.libmicrohttpd.staticcfg;
 
 public import bindbc.libmicrohttpd.header;
+public import bindbc.libmicrohttpd.config;
 
 extern (C):
 
@@ -436,48 +437,6 @@ MHD_Result MHD_run(MHD_Daemon *daemon);
 
 
 /**
- * Run websever operation with possible blocking.
- *
- * This function does the following: waits for any network event not more than
- * specified number of milliseconds, processes all incoming and outgoing data,
- * processes new connections, processes any timed-out connection, and does
- * other things required to run webserver.
- * Once all connections are processed, function returns.
- *
- * This function is useful for quick and simple (lazy) webserver implementation
- * if application needs to run a single thread only and does not have any other
- * network activity.
- *
- * This function calls MHD_get_timeout() internally and use returned value as
- * maximum wait time if it less than value of @a millisec parameter.
- *
- * It is expected that the "external" socket polling function is not used in
- * conjunction with this function unless the @a millisec is set to zero.
- *
- * Params:
- *  daemon = the daemon to run
- *  millisec = the maximum time in milliseconds to wait for network and
- *                 other events. Note: there is no guarantee that function
- *                 blocks for the specified amount of time. The real processing
- *                 time can be shorter (if some data or connection timeout
- *                 comes earlier) or longer (if data processing requires more
- *                 time, especially in user callbacks).
- *                 If set to '0' then function does not block and processes
- *                 only already available data (if any).
- *                 If set to '-1' then function waits for events
- *                 indefinitely (blocks until next network activity or
- *                 connection timeout).
- * Returns: `MHD_YES` on success, `MHD_NO` if this
- *         daemon was not started with the right
- *         options for this call or some serious
- *         unrecoverable error occurs.
- * Note: Available since `MHD_VERSION` 0x00097206
- * Ingroup: event
- */
-MHD_Result MHD_run_wait(MHD_Daemon *daemon, int32_t millisec);
-
-
-/**
  * Run webserver operations. This method should be called by clients
  * in combination with `MHD_get_fdset` and `MHD_get_timeout()` if the
  * client-controlled select method is used.
@@ -531,25 +490,6 @@ int MHD_get_connection_values(MHD_Connection *connection,
                            void *iterator_cls);
 
 
-/**
- * Get all of the headers from the request.
- *
- * Params:
- *  connection = connection to get values from
- *  kind = types of values to iterate over, can be a bitmask
- *  iterator = callback to call on each header;
- *        may be NULL (then just count headers)
- *  iterator_cls = extra argument to @a iterator
- * Returns: number of entries iterated over,
- *         -1 if connection is NULL.
- * Note: Available since `MHD_VERSION` 0x00096400
- * Ingroup: request
- */
-int MHD_get_connection_values_n(MHD_Connection *connection,
-                             MHD_ValueKind kind,
-                             MHD_KeyValueIteratorN iterator,
-                             void *iterator_cls);
-
 
 /**
  * This function can be used to add an entry to the HTTP headers of a
@@ -581,37 +521,6 @@ MHD_Result MHD_set_connection_value(MHD_Connection *connection,
                           const(char) *key,
                           const(char) *value);
 
-
-/**
- * This function can be used to add an arbitrary entry to connection.
- * This function could add entry with binary zero, which is allowed
- * for `MHD_GET_ARGUMENT_KIND`. For other kind on entries it is
- * recommended to use `MHD_set_connection_value`.
- *
- * This function MUST only be called from within the
- * `MHD_AccessHandlerCallback` (otherwise, access maybe improperly
- * synchronized).  Furthermore, the client must guarantee that the key
- * and value arguments are 0-terminated strings that are NOT freed
- * until the connection is closed.  (The easiest way to do this is by
- * passing only arguments to permanently allocated strings.).
- *
- * Params:
- *  connection = the connection for which a value should be set
- *  kind = kind of the value
- *  key = key for the value, must be zero-terminated
- *  key_size = number of bytes in @a key (excluding 0-terminator)
- *  value = the value itself, must be zero-terminated
- *  value_size = number of bytes in @a value (excluding 0-terminator)
- * Returns: `MHD_NO` if the operation could not be
- *         performed due to insufficient memory;
- *         `MHD_YES` on success
- * Note: Available since `MHD_VERSION` 0x00096400
- * Ingroup: request
- */
-MHD_Result MHD_set_connection_value_n(MHD_Connection *connection,
-    MHD_ValueKind kind,
-    const(char) *key, size_t key_size,
-    const(char) *value, size_t value_size);
 
 
 /**
@@ -663,33 +572,6 @@ const(char) *MHD_lookup_connection_value(MHD_Connection *connection,
                              MHD_ValueKind kind,
                              const(char) *key);
 
-
-/**
- * Get a particular header value.  If multiple
- * values match the kind, return any one of them.
- * Note: Since MHD_VERSION 0x00096304
- *
- * Params:
- *  connection = connection to get values from
- *  kind = what kind of value are we looking for
- *  key = the header to look for, NULL to lookup 'trailing' value without a key
- *  key_size = the length of @a key in bytes
- *  value_ptr = the pointer to variable, which will be set to found value,
- *                       will not be updated if key not found,
- *                       could be NULL to just check for presence of @a key
- *  value_size_ptr = the pointer variable, which will set to found value,
- *                            will not be updated if key not found,
- *                            could be NULL
- * Returns: `MHD_YES` if key is found,
- *         `MHD_NO` otherwise.
- * Ingroup: request
- */
-MHD_Result MHD_lookup_connection_value_n(MHD_Connection *connection,
-                               MHD_ValueKind kind,
-                               const(char) *key,
-                               size_t key_size,
-                               const(char) **value_ptr,
-                               size_t *value_size_ptr);
 
 
 /**
@@ -929,56 +811,6 @@ MHD_Response* MHD_create_response_from_buffer_copy(size_t size,
                                       const(void) *buffer);
 
 
-/**
- * Create a response object with the content of provided buffer used as
- * the response body.
- *
- * The response object can be extended with header information and then
- * be used any number of times.
- *
- * If response object is used to answer HEAD request then the body
- * of the response is not used, while all headers (including automatic
- * headers) are used.
- *
- * Params:
- *  size = size of the data portion of the response
- *  buffer = size bytes containing the response's data portion
- *  crfc = function to call to free the @a buffer
- * Returns: NULL on error (i.e. invalid arguments, out of memory)
- * Note: Available since `MHD_VERSION` 0x00096000
- * Ingroup: response
- */
-MHD_Response* MHD_create_response_from_buffer_with_free_callback(size_t size,
-                                                    void *buffer,
-                                                    MHD_ContentReaderFreeCallback crfc);
-
-
-/**
- * Create a response object with the content of provided buffer used as
- * the response body.
- *
- * The response object can be extended with header information and then
- * be used any number of times.
- *
- * If response object is used to answer HEAD request then the body
- * of the response is not used, while all headers (including automatic
- * headers) are used.
- *
- * Params:
- *  size = size of the data portion of the response
- *  buffer = size bytes containing the response's data portion
- *  crfc = function to call to cleanup, if set to NULL then callback
- *             is not called
- *  crfc_cls = an argument for @a crfc
- * Returns: NULL on error (i.e. invalid arguments, out of memory)
- * Note: Available since `MHD_VERSION` 0x00097302
- * Note: 'const' qualifier is used for @a buffer since `MHD_VERSION` 0x00097504
- * Ingroup: response
- */
-MHD_Response* MHD_create_response_from_buffer_with_free_callback_cls(size_t size,
-                                                        const(void) *buffer,
-                                                        MHD_ContentReaderFreeCallback crfc,
-                                                        void *crfc_cls);
 
 
 /**
@@ -1001,27 +833,6 @@ MHD_Response* MHD_create_response_from_buffer_with_free_callback_cls(size_t size
  * Ingroup: response
  */
 MHD_Response* MHD_create_response_from_fd(size_t size, int fd);
-
-
-/**
- * Create a response object with the response body created by reading
- * the provided pipe.
- *
- * The response object can be extended with header information and
- * then be used ONLY ONCE.
- *
- * If response object is used to answer HEAD request then the body
- * of the response is not used, while all headers (including automatic
- * headers) are used.
- *
- * Params: fd = file descriptor referring to a read-end of a pipe with the
- *        data; will be closed when response is destroyed;
- *        fd should be in 'blocking' mode
- * Returns: NULL on error (i.e. invalid arguments, out of memory)
- * Note: Available since `MHD_VERSION` 0x00097102
- * Ingroup: response
- */
-MHD_Response* MHD_create_response_from_pipe(int fd);
 
 
 /**
@@ -1106,34 +917,6 @@ MHD_Response* MHD_create_response_from_fd_at_offset(size_t size,
 MHD_Response* MHD_create_response_from_fd_at_offset64(uint64_t size,
                                          int fd,
                                          uint64_t offset);
-
-
-/**
- * Create a response object with an array of memory buffers
- * used as the response body.
- *
- * The response object can be extended with header information and then
- * be used any number of times.
- *
- * If response object is used to answer HEAD request then the body
- * of the response is not used, while all headers (including automatic
- * headers) are used.
- *
- * Params:
- *  iov = the array for response data buffers, an internal copy of this
- *        will be made
- *  iovcnt = the number of elements in @a iov
- *  free_cb = the callback to clean up any data associated with @a iov when
- *        the response is destroyed.
- *  cls = the argument passed to @a free_cb
- * Returns: NULL on error (i.e. invalid arguments, out of memory)
- * Note: Available since `MHD_VERSION` 0x00097204
- * Ingroup: response
- */
-MHD_Response* MHD_create_response_from_iovec(const(MHD_IoVec) *iov,
-                                uint iovcnt,
-                                MHD_ContentReaderFreeCallback free_cb,
-                                void *cls);
 
 
 /**
@@ -1742,29 +1525,6 @@ MHD_Result MHD_queue_auth_required_response3(MHD_Connection *connection,
                                    int userhash_support,
                                    int prefer_utf8);
 
-/**
- * Authenticates the authorization header sent by the client.
- *
- * Params:
- *  connection = The MHD connection structure
- *  realm = The realm presented to the client
- *  username = The username needs to be authenticated
- *  password = The password used in the authentication
- *  nonce_timeout = The amount of time for a nonce to be
- *      invalid in seconds
- *  algo = digest algorithms allowed for verification
- * Returns: `MHD_YES` if authenticated, `MHD_NO` if not,
- *         `MHD_INVALID_NONCE` if nonce is invalid or stale
- * Note: Available since `MHD_VERSION` 0x00096200
- * Deprecated: use MHD_digest_auth_check3()
- * Ingroup: authentication
- */
-int MHD_digest_auth_check2(MHD_Connection *connection,
-                        const(char) *realm,
-                        const(char) *username,
-                        const(char) *password,
-                        uint nonce_timeout,
-                        MHD_DigestAuthAlgorithm algo);
 
 
 /**
@@ -1793,34 +1553,6 @@ int MHD_digest_auth_check(MHD_Connection *connection,
                        uint nonce_timeout);
 
 
-/**
- * Authenticates the authorization header sent by the client.
- *
- * Params:
- *  connection = The MHD connection structure
- *  realm = The realm presented to the client
- *  username = The username needs to be authenticated
- *  digest = An `unsigned char *' pointer to the binary MD5 sum
- *      for the precalculated hash value "username:realm:password"
- *      of @a digest_size bytes
- *  digest_size = number of bytes in @a digest (size must match @a algo!)
- *  nonce_timeout = The amount of time for a nonce to be
- *      invalid in seconds
- *  algo = digest algorithms allowed for verification
- * Returns: `MHD_YES` if authenticated, `MHD_NO` if not,
- *         `MHD_INVALID_NONCE` if nonce is invalid or stale
- * Note: Available since `MHD_VERSION` 0x00096200
- * Deprecated: use MHD_digest_auth_check_digest3()
- * Ingroup: authentication
- */
-int MHD_digest_auth_check_digest2(MHD_Connection *connection,
-                               const(char) *realm,
-                               const(char) *username,
-                               const(uint8_t) *digest,
-                               size_t digest_size,
-                               uint nonce_timeout,
-                               MHD_DigestAuthAlgorithm algo);
-
 
 /**
  * Authenticates the authorization header sent by the client
@@ -1848,35 +1580,6 @@ int MHD_digest_auth_check_digest(MHD_Connection *connection,
                               //const uint8_t digest[MHD_MD5_DIGEST_SIZE],
                               const(uint8_t) *digest,
                               int nonce_timeout);
-
-
-/**
- * Queues a response to request authentication from the client
- *
- * This function modifies provided @a response. The @a response must not be
- * reused and should be destroyed after call of this function.
- *
- * Params:
- *  connection = The MHD connection structure
- *  realm = the realm presented to the client
- *  opaque = string to user for opaque value
- *  response = reply to send; should contain the "access denied"
- *        body; note that this function will set the "WWW Authenticate"
- *        header and that the caller should not do this; the NULL is tolerated
- *  signal_stale = `MHD_YES` if the nonce is stale to add
- *        'stale=true' to the authentication header
- *  algo = digest algorithm to use
- * Returns: `MHD_YES` on success, `MHD_NO` otherwise
- * Note: Available since `MHD_VERSION` 0x00096200
- * Deprecated: use MHD_queue_auth_required_response3()
- * Ingroup: authentication
- */
-MHD_Result MHD_queue_auth_fail_response2(MHD_Connection *connection,
-                               const(char) *realm,
-                               const(char) *opaque,
-                               MHD_Response *response,
-                               int signal_stale,
-                               MHD_DigestAuthAlgorithm algo);
 
 
 /**
@@ -2055,3 +1758,312 @@ const(char)* MHD_get_version();
  * Ingroup: specialized
  */
 MHD_Result MHD_is_feature_supported(MHD_FEATURE feature);
+
+
+static if (MHD_VERSION >= LibMicroHTTPDSupport.v000966)
+{
+    /**
+     * Get all of the headers from the request.
+     *
+     * Params:
+     *  connection = connection to get values from
+     *  kind = types of values to iterate over, can be a bitmask
+     *  iterator = callback to call on each header;
+     *        may be NULL (then just count headers)
+     *  iterator_cls = extra argument to @a iterator
+     * Returns: number of entries iterated over,
+     *         -1 if connection is NULL.
+     * Note: Available since `MHD_VERSION` 0x00096400
+     * Ingroup: request
+     */
+    int MHD_get_connection_values_n(MHD_Connection *connection,
+                                MHD_ValueKind kind,
+                                MHD_KeyValueIteratorN iterator,
+                                void *iterator_cls);
+
+    /**
+     * Get a particular header value.  If multiple
+     * values match the kind, return any one of them.
+     * Note: Since MHD_VERSION 0x00096304
+     *
+     * Params:
+     *  connection = connection to get values from
+     *  kind = what kind of value are we looking for
+     *  key = the header to look for, NULL to lookup 'trailing' value without a key
+     *  key_size = the length of @a key in bytes
+     *  value_ptr = the pointer to variable, which will be set to found value,
+     *                       will not be updated if key not found,
+     *                       could be NULL to just check for presence of @a key
+     *  value_size_ptr = the pointer variable, which will set to found value,
+     *                            will not be updated if key not found,
+     *                            could be NULL
+     * Returns: `MHD_YES` if key is found,
+     *         `MHD_NO` otherwise.
+     * Ingroup: request
+     */
+    MHD_Result MHD_lookup_connection_value_n(MHD_Connection *connection,
+                                MHD_ValueKind kind,
+                                const(char) *key,
+                                size_t key_size,
+                                const(char) **value_ptr,
+                                size_t *value_size_ptr);
+                                
+
+    /**
+     * Create a response object with the content of provided buffer used as
+     * the response body.
+     *
+     * The response object can be extended with header information and then
+     * be used any number of times.
+     *
+     * If response object is used to answer HEAD request then the body
+     * of the response is not used, while all headers (including automatic
+     * headers) are used.
+     *
+     * Params:
+     *  size = size of the data portion of the response
+     *  buffer = size bytes containing the response's data portion
+     *  crfc = function to call to free the @a buffer
+     * Returns: NULL on error (i.e. invalid arguments, out of memory)
+     * Note: Available since `MHD_VERSION` 0x00096000
+     * Ingroup: response
+     */
+    MHD_Response* MHD_create_response_from_buffer_with_free_callback(size_t size,
+                                                        void *buffer,
+                                                        MHD_ContentReaderFreeCallback crfc);
+    
+    /**
+     * Authenticates the authorization header sent by the client.
+     *
+     * Params:
+     *  connection = The MHD connection structure
+     *  realm = The realm presented to the client
+     *  username = The username needs to be authenticated
+     *  password = The password used in the authentication
+     *  nonce_timeout = The amount of time for a nonce to be
+     *      invalid in seconds
+     *  algo = digest algorithms allowed for verification
+     * Returns: `MHD_YES` if authenticated, `MHD_NO` if not,
+     *         `MHD_INVALID_NONCE` if nonce is invalid or stale
+     * Note: Available since `MHD_VERSION` 0x00096200
+     * Deprecated: use MHD_digest_auth_check3()
+     * Ingroup: authentication
+     */
+    int MHD_digest_auth_check2(MHD_Connection *connection,
+                            const(char) *realm,
+                            const(char) *username,
+                            const(char) *password,
+                            uint nonce_timeout,
+                            MHD_DigestAuthAlgorithm algo);
+
+    /**
+     * Authenticates the authorization header sent by the client.
+     *
+     * Params:
+     *  connection = The MHD connection structure
+     *  realm = The realm presented to the client
+     *  username = The username needs to be authenticated
+     *  digest = An `unsigned char *' pointer to the binary MD5 sum
+     *      for the precalculated hash value "username:realm:password"
+     *      of @a digest_size bytes
+     *  digest_size = number of bytes in @a digest (size must match @a algo!)
+     *  nonce_timeout = The amount of time for a nonce to be
+     *      invalid in seconds
+     *  algo = digest algorithms allowed for verification
+     * Returns: `MHD_YES` if authenticated, `MHD_NO` if not,
+     *         `MHD_INVALID_NONCE` if nonce is invalid or stale
+     * Note: Available since `MHD_VERSION` 0x00096200
+     * Deprecated: use MHD_digest_auth_check_digest3()
+     * Ingroup: authentication
+     */
+    int MHD_digest_auth_check_digest2(MHD_Connection *connection,
+                                const(char) *realm,
+                                const(char) *username,
+                                const(uint8_t) *digest,
+                                size_t digest_size,
+                                uint nonce_timeout,
+                                MHD_DigestAuthAlgorithm algo);
+
+
+    /**
+     * Queues a response to request authentication from the client
+     *
+     * This function modifies provided @a response. The @a response must not be
+     * reused and should be destroyed after call of this function.
+     *
+     * Params:
+     *  connection = The MHD connection structure
+     *  realm = the realm presented to the client
+     *  opaque = string to user for opaque value
+     *  response = reply to send; should contain the "access denied"
+     *        body; note that this function will set the "WWW Authenticate"
+     *        header and that the caller should not do this; the NULL is tolerated
+     *  signal_stale = `MHD_YES` if the nonce is stale to add
+     *        'stale=true' to the authentication header
+     *  algo = digest algorithm to use
+     * Returns: `MHD_YES` on success, `MHD_NO` otherwise
+     * Note: Available since `MHD_VERSION` 0x00096200
+     * Deprecated: use MHD_queue_auth_required_response3()
+     * Ingroup: authentication
+     */
+    MHD_Result MHD_queue_auth_fail_response2(MHD_Connection *connection,
+                                const(char) *realm,
+                                const(char) *opaque,
+                                MHD_Response *response,
+                                int signal_stale,
+                                MHD_DigestAuthAlgorithm algo);
+}
+
+
+static if (MHD_VERSION >= LibMicroHTTPDSupport.v000975)
+{
+    /**
+     * Run websever operation with possible blocking.
+     *
+     * This function does the following: waits for any network event not more than
+     * specified number of milliseconds, processes all incoming and outgoing data,
+     * processes new connections, processes any timed-out connection, and does
+     * other things required to run webserver.
+     * Once all connections are processed, function returns.
+     *
+     * This function is useful for quick and simple (lazy) webserver implementation
+     * if application needs to run a single thread only and does not have any other
+     * network activity.
+     *
+     * This function calls MHD_get_timeout() internally and use returned value as
+     * maximum wait time if it less than value of @a millisec parameter.
+     *
+     * It is expected that the "external" socket polling function is not used in
+     * conjunction with this function unless the @a millisec is set to zero.
+     *
+     * Params:
+     *  daemon = the daemon to run
+     *  millisec = the maximum time in milliseconds to wait for network and
+     *                 other events. Note: there is no guarantee that function
+     *                 blocks for the specified amount of time. The real processing
+     *                 time can be shorter (if some data or connection timeout
+     *                 comes earlier) or longer (if data processing requires more
+     *                 time, especially in user callbacks).
+     *                 If set to '0' then function does not block and processes
+     *                 only already available data (if any).
+     *                 If set to '-1' then function waits for events
+     *                 indefinitely (blocks until next network activity or
+     *                 connection timeout).
+     * Returns: `MHD_YES` on success, `MHD_NO` if this
+     *         daemon was not started with the right
+     *         options for this call or some serious
+     *         unrecoverable error occurs.
+     * Note: Available since `MHD_VERSION` 0x00097206
+     * Ingroup: event
+     */
+    MHD_Result MHD_run_wait(MHD_Daemon *daemon, int32_t millisec);
+    
+
+    /**
+     * This function can be used to add an arbitrary entry to connection.
+     * This function could add entry with binary zero, which is allowed
+     * for `MHD_GET_ARGUMENT_KIND`. For other kind on entries it is
+     * recommended to use `MHD_set_connection_value`.
+     *
+     * This function MUST only be called from within the
+     * `MHD_AccessHandlerCallback` (otherwise, access maybe improperly
+     * synchronized).  Furthermore, the client must guarantee that the key
+     * and value arguments are 0-terminated strings that are NOT freed
+     * until the connection is closed.  (The easiest way to do this is by
+     * passing only arguments to permanently allocated strings.).
+     *
+     * Params:
+     *  connection = the connection for which a value should be set
+     *  kind = kind of the value
+     *  key = key for the value, must be zero-terminated
+     *  key_size = number of bytes in @a key (excluding 0-terminator)
+     *  value = the value itself, must be zero-terminated
+     *  value_size = number of bytes in @a value (excluding 0-terminator)
+     * Returns: `MHD_NO` if the operation could not be
+     *         performed due to insufficient memory;
+     *         `MHD_YES` on success
+     * Note: Available since `MHD_VERSION` 0x00096400
+     * Ingroup: request
+     */
+    MHD_Result MHD_set_connection_value_n(MHD_Connection *connection,
+        MHD_ValueKind kind,
+        const(char) *key, size_t key_size,
+        const(char) *value, size_t value_size);
+    
+
+    /**
+     * Create a response object with the content of provided buffer used as
+     * the response body.
+     *
+     * The response object can be extended with header information and then
+     * be used any number of times.
+     *
+     * If response object is used to answer HEAD request then the body
+     * of the response is not used, while all headers (including automatic
+     * headers) are used.
+     *
+     * Params:
+     *  size = size of the data portion of the response
+     *  buffer = size bytes containing the response's data portion
+     *  crfc = function to call to cleanup, if set to NULL then callback
+     *             is not called
+     *  crfc_cls = an argument for @a crfc
+     * Returns: NULL on error (i.e. invalid arguments, out of memory)
+     * Note: Available since `MHD_VERSION` 0x00097302
+     * Note: 'const' qualifier is used for @a buffer since `MHD_VERSION` 0x00097504
+     * Ingroup: response
+     */
+    MHD_Response* MHD_create_response_from_buffer_with_free_callback_cls(size_t size,
+                                                            const(void) *buffer,
+                                                            MHD_ContentReaderFreeCallback crfc,
+                                                            void *crfc_cls);
+
+
+    /**
+     * Create a response object with the response body created by reading
+     * the provided pipe.
+     *
+     * The response object can be extended with header information and
+     * then be used ONLY ONCE.
+     *
+     * If response object is used to answer HEAD request then the body
+     * of the response is not used, while all headers (including automatic
+     * headers) are used.
+     *
+     * Params: fd = file descriptor referring to a read-end of a pipe with the
+     *        data; will be closed when response is destroyed;
+     *        fd should be in 'blocking' mode
+     * Returns: NULL on error (i.e. invalid arguments, out of memory)
+     * Note: Available since `MHD_VERSION` 0x00097102
+     * Ingroup: response
+     */
+    MHD_Response* MHD_create_response_from_pipe(int fd);
+
+
+    /**
+     * Create a response object with an array of memory buffers
+     * used as the response body.
+     *
+     * The response object can be extended with header information and then
+     * be used any number of times.
+     *
+     * If response object is used to answer HEAD request then the body
+     * of the response is not used, while all headers (including automatic
+     * headers) are used.
+     *
+     * Params:
+     *  iov = the array for response data buffers, an internal copy of this
+     *        will be made
+     *  iovcnt = the number of elements in @a iov
+     *  free_cb = the callback to clean up any data associated with @a iov when
+     *        the response is destroyed.
+     *  cls = the argument passed to @a free_cb
+     * Returns: NULL on error (i.e. invalid arguments, out of memory)
+     * Note: Available since `MHD_VERSION` 0x00097204
+     * Ingroup: response
+     */
+    MHD_Response* MHD_create_response_from_iovec(const(MHD_IoVec) *iov,
+                                    uint iovcnt,
+                                    MHD_ContentReaderFreeCallback free_cb,
+                                    void *cls);
+}

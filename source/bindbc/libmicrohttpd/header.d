@@ -1,5 +1,6 @@
 /**
- * Bindings for the libmicrohttpd library.
+ * Bindings for the libmicrohttpd library. The rest of the doc is left as-is as
+ * much as possible.
  *
  * Authors: dd86k <dd@dax.moe>
  * File: microhttpd.h
@@ -94,15 +95,6 @@ version (Windows)
 public import core.stdc.stdarg;
 public import core.stdc.stdint;
 
-/**
- * Current version of the library in packed BCD form.
- * Note: Version number components are coded as Simple Binary-Coded Decimal
- * (also called Natural BCD or BCD 8421). While they are hexadecimal numbers,
- * they are parsed as decimal numbers.
- * Example: 0x01093001 = 1.9.30-1.
- */
-enum MHD_VERSION = 0x00097542;
-
 alias MHD_UNSIGNED_LONG_LONG = ulong;
 
 /**
@@ -111,14 +103,10 @@ alias MHD_UNSIGNED_LONG_LONG = ulong;
 alias MHD_Result = int;
 enum
 {
-    /**
-    * MHD result code for "NO".
-    */
+    /// MHD result code for "NO".
     MHD_NO = 0,
 
-    /**
-    * MHD result code for "YES".
-    */
+    /// MHD result code for "YES".
     MHD_YES = 1
 }
 

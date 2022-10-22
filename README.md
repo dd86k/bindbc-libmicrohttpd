@@ -20,8 +20,12 @@ Currently, the supported versions are listed below.
 | 0.9.66 | Ubuntu 20.04 | `LibMicroHTTPD_v000966` |
 | 0.9.75 | Ubuntu 22.04 | `LibMicroHTTPD_v000975` |
 
-Defined versions also effect static configurations. I currently don't have a
-list of functions with their corresponding versions so the versions are rough.
+Defined versions also effect static configurations.
+
+I currently don't have a list of functions with their corresponding versions
+so the versions are rough, but I don't think I'd mind supporting more versions.
+
+The `MHD_VERSION` constant is defined depending on the version configured.
 
 # License
 

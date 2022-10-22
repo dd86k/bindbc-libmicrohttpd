@@ -9,8 +9,13 @@ import core.stdc.string;
 
 extern (C):
 
-immutable const(char)* PAGE = "<html><head><title>libmicrohttpd demo</title>"~
-            "</head><body>libmicrohttpd demo</body></html>";
+// Older compiler versions might complain about this when
+// using betterC/no-druntime options.
+private void _d_dso_registry() {}
+
+immutable const(char)* PAGE =
+    "<html><head><title>libmicrohttpd demo</title>"~
+    "</head><body>libmicrohttpd demo</body></html>";
 
 MHD_Result ahc_echo(void *cls,
     MHD_Connection *connection,
@@ -29,16 +34,16 @@ MHD_Result ahc_echo(void *cls,
     
     if (&dummy != *ptr)
     {
-        /* The first time only the headers are valid,
-            do not respond in the first round... */
+        // The first time only the headers are valid,
+        // do not respond in the first round...
         *ptr = &dummy;
         return MHD_YES;
     }
     
-    if (0 != *upload_data_size)
-        return MHD_NO; /* upload data in a GET!? */
+    if (*upload_data_size)
+        return MHD_NO; // upload data in a GET!?
     
-    *ptr = null; /* clear context pointer */
+    *ptr = null; // clear context pointer
     MHD_Response *response = MHD_create_response_from_buffer(
         strlen(page),
         cast(void*)page,
@@ -67,17 +72,19 @@ int main(int argc, const(char) **argv)
         default:
     }
     
-    ushort port = 8088; // Default
+    // Defaults
+    ushort port = 8088;
+    const(char) *address;
     
     if (argc >= 2)
     {
         port = cast(ushort)atoi(argv[1]);
     }
     
-    import core.stdc.stdio;
-    printf("LibMicroHTTPD Version: %s\n", MHD_get_version());
+    printf("configuration: %08x\n", MHD_VERSION);
+    printf("libmicrohttpd version: %s\n", MHD_get_version());
     
-    MHD_Daemon *d = MHD_start_daemon(
+    MHD_Daemon *daemon = MHD_start_daemon(
         MHD_USE_THREAD_PER_CONNECTION,
         port,
         null,
@@ -85,12 +92,15 @@ int main(int argc, const(char) **argv)
         &ahc_echo,
         cast(void*)PAGE,
         MHD_OPTION_END);
-    if (d == null)
+    if (daemon == null)
         return 1;
     
-    printf("Listening on port %u\n", port);
+    printf("Listening on 0.0.0.0:%u\n",
+        MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_BIND_PORT).port);
     
     getc(stdin);
-    MHD_stop_daemon(d);
+    
+    puts("Stopping daemon...");
+    MHD_stop_daemon(daemon);
     return 0;
 }

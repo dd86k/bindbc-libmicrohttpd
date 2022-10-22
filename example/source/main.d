@@ -93,7 +93,6 @@ int main(int argc, const(char) **argv)
         MHD_OPTION_END);
     if (daemon == null)
     {
-        puts("Failed to start daemon");
         return 1;
     }
     

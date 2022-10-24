@@ -62,13 +62,13 @@ int main(int argc, const(char) **argv)
             {
                 printf("error: %s\n", err.message);
             }
-            assert(0, "Library not found on system.");
+            assert(0, "Library not found on system");
         case badLibrary:
             foreach (const(ErrorInfo) err; errors)
             {
                 printf("error: %s %s\n", err.error, err.message);
             }
-            assert(0, "Could not load some symbols.");
+            assert(0, "Could not load some symbols");
         default:
     }
     
@@ -99,7 +99,11 @@ int main(int argc, const(char) **argv)
     printf("Listening on 0.0.0.0:%u\n",
         MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_BIND_PORT).port);
     
-    getc(stdin);
+    // getc(stdin) was used here but standard streams are misdefined on Windows
+    // platforms when the betterC feature is used, and while gets is deprecated,
+    // it is the only function useable to reprecate the getc functionality.
+    __gshared char[512] __;
+    gets(__.ptr);
     
     puts("Stopping daemon...");
     MHD_stop_daemon(daemon);

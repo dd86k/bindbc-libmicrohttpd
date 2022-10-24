@@ -82,14 +82,25 @@ module bindbc.libmicrohttpd.header;
 
 version (Posix)
 {
-  public import core.sys.posix.unistd;
-  public import core.sys.posix.sys.types;
-  public import core.sys.posix.sys.socket;
-  public import core.sys.posix.sys.select;
+    public import core.sys.posix.unistd;
+    public import core.sys.posix.sys.types;
+    public import core.sys.posix.sys.socket;
+    public import core.sys.posix.sys.select;
 }
 version (Windows)
 {
-  public import core.sys.windows.winsock2; // ws2tcpip
+    public import core.sys.windows.winsock2; // ws2tcpip.h
+    public import core.stdc.stdint : intptr_t;
+    
+    // While core.sys.posix.sys.types sets this as c_long,
+    // the libmicrohttpdheaders uses intptr_t
+    public alias ssize_t = intptr_t;
+    
+    // Assumes __USE_FILE_OFFSET64 is set for 64-bit builds
+    static if (size_t.sizeof == 8)
+        public alias off_t = long;
+    else
+        public alias off_t = int;
 }
 
 public import core.stdc.stdarg;

@@ -413,13 +413,16 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD()
     version (Windows)
     {
         static immutable const(char)*[] libraries = [
-            "libmicrohttpd.dll"
+            "libmicrohttpd.dll",
+            "libmicrohttpd-dll.dll",
         ];
     }
     else version (OSX)
     {
         static immutable const(char)*[] libraries = [
-            "libmicrohttpd.dylib"
+            "libmicrohttpd.dylib",
+            "libmicrohttpd.12.dylib",
+            "libmicrohttpd.0.dylib",
         ];
     }
     else version (Posix)

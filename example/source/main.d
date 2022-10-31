@@ -84,7 +84,9 @@ int main(int argc, const(char) **argv)
     printf("libmicrohttpd version: %s\n", MHD_get_version());
     
     MHD_Daemon *daemon = MHD_start_daemon(
-        MHD_USE_THREAD_PER_CONNECTION | MHD_USE_DEBUG,
+        MHD_USE_THREAD_PER_CONNECTION |
+            MHD_USE_INTERNAL_POLLING_THREAD |
+            MHD_USE_DEBUG,
         port,
         null,
         null,

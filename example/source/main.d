@@ -7,11 +7,15 @@ import core.stdc.stdlib;
 import core.stdc.stdint;
 import core.stdc.string;
 
+private:
 extern (C):
+
+// Invalid extern in core.stdc.stdio.
+int getchar();
 
 // Older compiler versions might complain about this when
 // using betterC/no-druntime options.
-private void _d_dso_registry() {}
+void _d_dso_registry() {}
 
 immutable const(char)* PAGE =
     "<html><head><title>libmicrohttpd demo</title>"~
@@ -101,11 +105,8 @@ int main(int argc, const(char) **argv)
     printf("Listening on 0.0.0.0:%u\n",
         MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_BIND_PORT).port);
     
-    // getc(stdin) was used here but standard streams are misdefined on Windows
-    // platforms when the betterC feature is used, and while gets is deprecated,
-    // it is the only function useable to reprecate the getc functionality.
-    __gshared char[512] __;
-    gets(__.ptr);
+    puts("Press enter to close");
+    getchar();
     
     puts("Stopping daemon...");
     MHD_stop_daemon(daemon);

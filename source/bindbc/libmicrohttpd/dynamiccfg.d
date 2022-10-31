@@ -415,6 +415,8 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD()
         static immutable const(char)*[] libraries = [
             "libmicrohttpd.dll",
             "libmicrohttpd-dll.dll",
+            "libmicrohttpd-12.dll",
+            "libmicrohttpd-0.dll",
         ];
     }
     else version (OSX)

@@ -18,6 +18,7 @@ int getchar();
 void _d_dso_registry() {}
 
 immutable const(char)* PAGE =
+    "<!DOCTYPE html>"~
     "<html><head><title>libmicrohttpd demo</title>"~
     "</head><body>libmicrohttpd demo</body></html>";
 
@@ -36,13 +37,15 @@ MHD_Result ahc_echo(void *cls,
     if (strcmp(method, "GET"))
         return MHD_NO; /* unexpected method */
     
-    if (&dummy != *ptr)
+    // Commented because this made the browser request the
+    // page again.
+    /*if (&dummy != *ptr)
     {
         // The first time only the headers are valid,
         // do not respond in the first round...
         *ptr = &dummy;
         return MHD_YES;
-    }
+    }*/
     
     if (*upload_data_size)
         return MHD_NO; // upload data in a GET!?

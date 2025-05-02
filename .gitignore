@@ -4,6 +4,7 @@ __dummy.html
 docs/
 /bindbc-libmicrohttpd
 /example/example
+/example/bindbc-libmicrohttpd_example
 bindbc-libmicrohttpd-test-*
 *.so
 *.dylib

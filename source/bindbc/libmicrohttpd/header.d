@@ -112,7 +112,7 @@ alias MHD_UNSIGNED_LONG_LONG = ulong;
  * Operational results from MHD calls.
  */
 alias MHD_Result = int;
-enum
+enum : MHD_Result
 {
     /// MHD result code for "NO".
     MHD_NO = 0,
@@ -287,14 +287,14 @@ enum MHD_HTTP_NOT_EXTENDED                = 510;
 /// 511 "Network Authentication Required". RFC6585.
 enum MHD_HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;
 
-//// Not registered non-standard codes
-//// 449 "Reply With".          MS IIS extension.
+/// Not registered non-standard codes
+/// 449 "Reply With".          MS IIS extension.
 enum MHD_HTTP_RETRY_WITH                  = 449;
 
-/// 450 "Blocked by Windows Parental Controls". MS extension. */
+/// 450 "Blocked by Windows Parental Controls". MS extension.
 enum MHD_HTTP_BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS = 450;
 
-/// 509 "Bandwidth Limit Exceeded". Apache extension. */
+/// 509 "Bandwidth Limit Exceeded". Apache extension.
 enum MHD_HTTP_BANDWIDTH_LIMIT_EXCEEDED    = 509;
 
 deprecated("Value MHD_HTTP_METHOD_NOT_ACCEPTABLE is deprecated, use MHD_HTTP_NOT_ACCEPTABLE")
@@ -329,7 +329,7 @@ extern (C):
  * If message string is not available for a status code,
  * "Unknown" string will be returned.
  */
-const(char) *MHD_get_reason_phrase_for (uint code);
+//const(char) *MHD_get_reason_phrase_for (uint code);
 
 
 /**
@@ -338,7 +338,7 @@ const(char) *MHD_get_reason_phrase_for (uint code);
  * If message string is not available for a status code,
  * 0 is returned.
  */
-size_t MHD_get_reason_phrase_len_for (uint code);
+//size_t MHD_get_reason_phrase_len_for (uint code);
 
 /**
  * Flag to be or-ed with MHD_HTTP status code for
@@ -974,7 +974,7 @@ struct MHD_PostProcessor;
  * support for TLS, epoll or IPv6).
  */
 alias MHD_FLAG = int;
-enum
+enum : MHD_FLAG
 {
   /**
    * No options selected.
@@ -1247,7 +1247,7 @@ alias MHD_PskServerCredentialsCallback = int function(
  * Note: Available since `MHD_VERSION` 0x00097531
  */
 alias MHD_DAuthBindNonce = int;
-enum
+enum : MHD_DAuthBindNonce
 {
   /**
    * Generated nonces are valid for any request from any client until expired.
@@ -1307,7 +1307,7 @@ enum
  * Passed in the varargs portion of `MHD_start_daemon`.
  */
 alias MHD_OPTION = int;
-enum
+enum : MHD_OPTION
 {
 
   /**
@@ -1744,7 +1744,7 @@ enum
  * which santiy checks should be disabled.
  */
 alias MHD_DisableSanityCheck = int;
-enum
+enum : MHD_DisableSanityCheck
 {
   /**
    * All sanity checks are enabled.
@@ -1792,7 +1792,8 @@ alias MHD_ValueKind = int;
    */
 deprecated("Value MHD_RESPONSE_HEADER_KIND is deprecated and not used")
 enum MHD_RESPONSE_HEADER_KIND = 0;
-enum {
+enum : MHD_ValueKind
+{
   /**
    * HTTP header (request/response).
    */
@@ -1832,7 +1833,7 @@ enum {
  * Ingroup: request
  */
 alias MHD_RequestTerminationCode = int;
-enum
+enum : MHD_RequestTerminationCode
 {
 
   /**
@@ -1891,7 +1892,7 @@ enum
  * Ingroup: request
  */
 alias MHD_ConnectionNotificationCode = int;
-enum
+enum : MHD_ConnectionNotificationCode
 {
 
   /**
@@ -2005,7 +2006,7 @@ struct MHD_IoVec
  * Ingroup: request
  */
 alias MHD_ConnectionInfoType = int;
-enum
+enum : MHD_ConnectionInfoType
 {
   /**
    * What cipher algorithm is being used.
@@ -2100,7 +2101,7 @@ enum
  * information about a daemon is desired.
  */
 alias MHD_DaemonInfoType = int;
-enum
+enum : MHD_DaemonInfoType
 {
   /**
    * No longer supported (will return NULL).
@@ -2504,7 +2505,7 @@ alias MHD_PostDataIterator = MHD_Result function(
  * Flags for special handling of responses.
  */
 alias MHD_ResponseFlags = int;
-enum
+enum : MHD_ResponseFlags
 {
   /**
    * Default: no special flags.
@@ -2592,7 +2593,7 @@ enum
  * MHD options (for future extensions).
  */
 alias MHD_ResponseOptions = int;
-enum
+enum : MHD_ResponseFlags
 {
   /**
    * End of the list of options.
@@ -2608,7 +2609,7 @@ enum
  * Ingroup: response
  */
 alias MHD_ResponseMemoryMode = int;
-enum
+enum : MHD_ResponseMemoryMode
 {
 
   /**
@@ -2653,7 +2654,7 @@ enum
  * idea for what we might want.
  */
 alias MHD_UpgradeAction = int;
-enum
+enum : MHD_UpgradeAction
 {
 
   /**
@@ -2786,7 +2787,7 @@ enum MHD_SHA512_256_DIGEST_SIZE = 32;
  * Note: Available since `MHD_VERSION` 0x00097520
  */
 alias MHD_DigestBaseAlgo = int;
-enum
+enum : MHD_DigestBaseAlgo
 {
   /**
    * Invalid hash algorithm value
@@ -2833,7 +2834,7 @@ enum MHD_DIGEST_AUTH_ALGO3_SESSION =        (1 << 7);
  * Note: Available since `MHD_VERSION` 0x00097523
  */
 alias MHD_DigestAuthAlgo3 = int;
-enum
+enum : MHD_DigestAuthAlgo3
 {
   /**
    * Unknown or wrong algorithm type.
@@ -3000,7 +3001,7 @@ enum MHD_DigestAuthMultiAlgo3
  * Note: Available since `MHD_VERSION` 0x00097537
  */
 alias MHD_DigestAuthUsernameType = int;
-enum
+enum : MHD_DigestAuthUsernameType
 {
   /**
    * No username parameter in in Digest Authorization header.
@@ -3044,7 +3045,7 @@ enum
  * Note: Available since `MHD_VERSION` 0x00097519
  */
 alias MHD_DigestAuthQOP = int;
-enum
+enum : MHD_DigestAuthQOP
 {
   /**
    * Invalid/unknown QOP.
@@ -3084,7 +3085,7 @@ enum
  * Note: Available since `MHD_VERSION` 0x00097530
  */
 alias MHD_DigestAuthMultiQOP = int;
-enum
+enum : MHD_DigestAuthMultiQOP
 {
   /**
    * Invalid/unknown QOP.
@@ -3344,7 +3345,7 @@ struct MHD_DigestAuthUsernameInfo
  * Note: Available since `MHD_VERSION` 0x00097531
  */
 alias MHD_DigestAuthResult = int;
-enum
+enum : MHD_DigestAuthResult
 {
   /**
    * Authentication OK.
@@ -3464,7 +3465,7 @@ char* MHD_digest_auth_get_username(MHD_Connection *connection);
  * `MHD_digest_auth_check_digest2()`, `MHD_queue_auth_fail_response2()`.
  */
 alias MHD_DigestAuthAlgorithm = int;
-enum
+enum : MHD_DigestAuthAlgorithm
 {
 
   /**
@@ -3532,7 +3533,7 @@ struct MHD_BasicAuthInfo
  * set custom options for a particular connection.
  */
 alias MHD_CONNECTION_OPTION = int;
-enum
+enum : MHD_CONNECTION_OPTION
 {
 
   /**
@@ -3600,7 +3601,7 @@ union MHD_DaemonInfo
  * used by `MHD_is_feature_supported()`.
  */
 alias MHD_FEATURE = int;
-enum
+enum : MHD_FEATURE
 {
   /**
    * Get whether messages are supported. If supported then in debug

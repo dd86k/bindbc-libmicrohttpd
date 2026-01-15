@@ -112,7 +112,7 @@ alias MHD_UNSIGNED_LONG_LONG = ulong;
  * Operational results from MHD calls.
  */
 alias MHD_Result = int;
-enum
+enum : MHD_Result
 {
     /// MHD result code for "NO".
     MHD_NO = 0,
@@ -287,14 +287,14 @@ enum MHD_HTTP_NOT_EXTENDED                = 510;
 /// 511 "Network Authentication Required". RFC6585.
 enum MHD_HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;
 
-//// Not registered non-standard codes
-//// 449 "Reply With".          MS IIS extension.
+/// Not registered non-standard codes
+/// 449 "Reply With".          MS IIS extension.
 enum MHD_HTTP_RETRY_WITH                  = 449;
 
-/// 450 "Blocked by Windows Parental Controls". MS extension. */
+/// 450 "Blocked by Windows Parental Controls". MS extension.
 enum MHD_HTTP_BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS = 450;
 
-/// 509 "Bandwidth Limit Exceeded". Apache extension. */
+/// 509 "Bandwidth Limit Exceeded". Apache extension.
 enum MHD_HTTP_BANDWIDTH_LIMIT_EXCEEDED    = 509;
 
 deprecated("Value MHD_HTTP_METHOD_NOT_ACCEPTABLE is deprecated, use MHD_HTTP_NOT_ACCEPTABLE")
@@ -329,7 +329,7 @@ extern (C):
  * If message string is not available for a status code,
  * "Unknown" string will be returned.
  */
-const(char) *MHD_get_reason_phrase_for (uint code);
+//const(char) *MHD_get_reason_phrase_for (uint code);
 
 
 /**
@@ -338,7 +338,7 @@ const(char) *MHD_get_reason_phrase_for (uint code);
  * If message string is not available for a status code,
  * 0 is returned.
  */
-size_t MHD_get_reason_phrase_len_for (uint code);
+//size_t MHD_get_reason_phrase_len_for (uint code);
 
 /**
  * Flag to be or-ed with MHD_HTTP status code for
@@ -974,7 +974,7 @@ struct MHD_PostProcessor;
  * support for TLS, epoll or IPv6).
  */
 alias MHD_FLAG = int;
-enum
+enum : MHD_FLAG
 {
   /**
    * No options selected.
@@ -998,10 +998,7 @@ enum
    * Run in HTTPS mode.  The modern protocol is called TLS.
    */
   MHD_USE_TLS = 2,
-}
-deprecated("Value MHD_USE_SSL is deprecated, use MHD_USE_TLS")
-enum MHD_USE_SSL = 2;
-enum {
+  
   /**
    * Run using one thread per connection.
    * Must be used only with `MHD_USE_INTERNAL_POLLING_THREAD`.
@@ -1036,19 +1033,7 @@ enum {
    * no IPv4 support).
    */
   MHD_USE_IPv6 = 16,
-}
-  /**
-   * Be pedantic about the protocol (as opposed to as tolerant as
-   * possible).  Specifically, at the moment, this flag causes MHD to
-   * reject HTTP 1.1 connections without a "Host" header.  This is
-   * required by the standard, but of course in violation of the "be
-   * as liberal as possible in what you accept" norm.  It is
-   * recommended to turn this ON if you are testing clients against
-   * MHD, and OFF in production.
-   */
-deprecated("Flag MHD_USE_PEDANTIC_CHECKS is deprecated, use option MHD_OPTION_STRICT_FOR_CLIENT instead")
-enum MHD_USE_PEDANTIC_CHECKS = 32;
-enum {
+  
   /**
    * Use `poll()` instead of `select()` for polling sockets.
    * This allows sockets with `fd >= FD_SETSIZE`.
@@ -1065,10 +1050,7 @@ enum {
    * See_Also: ::MHD_FEATURE_POLL, `MHD_USE_POLL`, `MHD_USE_INTERNAL_POLLING_THREAD`
    */
   MHD_USE_POLL_INTERNAL_THREAD = MHD_USE_POLL | MHD_USE_INTERNAL_POLLING_THREAD,
-}
-deprecated("Value MHD_USE_POLL_INTERNALLY is deprecated, use MHD_USE_POLL_INTERNAL_THREAD instead")
-enum MHD_USE_POLL_INTERNALLY = MHD_USE_POLL | MHD_USE_INTERNAL_POLLING_THREAD;
-enum {
+  
   /**
    * Suppress (automatically) adding the 'Date:' header to HTTP responses.
    * This option should ONLY be used on systems that do not have a clock
@@ -1076,10 +1058,7 @@ enum {
    * RFC 2616, section 14.18 (exception 3).
    */
   MHD_USE_SUPPRESS_DATE_NO_CLOCK = 128,
-}
-deprecated("Value MHD_SUPPRESS_DATE_NO_CLOCK is deprecated, use MHD_USE_SUPPRESS_DATE_NO_CLOCK instead")
-enum MHD_SUPPRESS_DATE_NO_CLOCK = 128;
-enum {
+  
   /**
    * Run without a listen socket.  This option only makes sense if
    * `MHD_add_connection` is to be used exclusively to connect HTTP
@@ -1097,10 +1076,7 @@ enum {
    * See_Also: ::MHD_FEATURE_EPOLL
    */
   MHD_USE_EPOLL = 512,
-}
-deprecated("Value MHD_USE_EPOLL_LINUX_ONLY is deprecated, use MHD_USE_EPOLL")
-enum MHD_USE_EPOLL_LINUX_ONLY = 512;
-enum {
+  
   /**
    * Run using an internal thread (or thread pool) doing `epoll` polling.
    * This option is only available on certain platforms; using the option on
@@ -1108,12 +1084,7 @@ enum {
    * See_Also: ::MHD_FEATURE_EPOLL, `MHD_USE_EPOLL`, `MHD_USE_INTERNAL_POLLING_THREAD`
    */
   MHD_USE_EPOLL_INTERNAL_THREAD = MHD_USE_EPOLL | MHD_USE_INTERNAL_POLLING_THREAD,
-}
-deprecated("Value MHD_USE_EPOLL_INTERNALLY is deprecated, use MHD_USE_EPOLL_INTERNAL_THREAD")
-enum MHD_USE_EPOLL_INTERNALLY = MHD_USE_EPOLL | MHD_USE_INTERNAL_POLLING_THREAD;
-deprecated("Value MHD_USE_EPOLL_INTERNALLY_LINUX_ONLY is deprecated, use MHD_USE_EPOLL_INTERNAL_THREAD")
-enum MHD_USE_EPOLL_INTERNALLY_LINUX_ONLY = MHD_USE_EPOLL | MHD_USE_INTERNAL_POLLING_THREAD;
-enum {
+  
   /**
    * Use inter-thread communication channel.
    * `MHD_USE_ITC` can be used with `MHD_USE_INTERNAL_POLLING_THREAD`
@@ -1127,10 +1098,7 @@ enum {
    * socket.
    */
   MHD_USE_ITC = 1024,
-}
-deprecated("Value MHD_USE_PIPE_FOR_SHUTDOWN is deprecated, use MHD_USE_ITC")
-enum MHD_USE_PIPE_FOR_SHUTDOWN = 1024;
-enum {
+  
   /**
    * Use a single socket for IPv4 and IPv6.
    */
@@ -1143,19 +1111,13 @@ enum {
    * Most effects only happen with `MHD_USE_EPOLL`.
    */
   MHD_USE_TURBO = 4096,
-}
-deprecated("Value MHD_USE_EPOLL_TURBO is deprecated, use MHD_USE_TURBO")
-enum MHD_USE_EPOLL_TURBO = 4096;
-enum {
+  
   /**
    * Enable suspend/resume functions, which also implies setting up
    * ITC to signal resume.
    */
   MHD_ALLOW_SUSPEND_RESUME = 8192 | MHD_USE_ITC,
-}
-deprecated("Value MHD_USE_SUSPEND_RESUME is deprecated, use MHD_ALLOW_SUSPEND_RESUME instead")
-enum MHD_USE_SUSPEND_RESUME = 8192 | MHD_USE_ITC;
-enum {
+  
   /**
    * Enable TCP_FASTOPEN option.  This option is only available on Linux with a
    * kernel >= 3.6.  On other systems, using this option cases `MHD_start_daemon`
@@ -1203,6 +1165,26 @@ enum {
    */
   MHD_USE_INSECURE_TLS_EARLY_DATA = 1u << 18
 }
+deprecated("Value MHD_USE_SUSPEND_RESUME is deprecated, use MHD_ALLOW_SUSPEND_RESUME instead")
+enum MHD_FLAG MHD_USE_SUSPEND_RESUME = 8192 | MHD_USE_ITC;
+deprecated("Value MHD_USE_EPOLL_TURBO is deprecated, use MHD_USE_TURBO")
+enum MHD_FLAG MHD_USE_EPOLL_TURBO = 4096;
+deprecated("Value MHD_USE_PIPE_FOR_SHUTDOWN is deprecated, use MHD_USE_ITC")
+enum MHD_FLAG MHD_USE_PIPE_FOR_SHUTDOWN = 1024;
+deprecated("Value MHD_USE_EPOLL_INTERNALLY is deprecated, use MHD_USE_EPOLL_INTERNAL_THREAD")
+enum MHD_FLAG MHD_USE_EPOLL_INTERNALLY = MHD_USE_EPOLL | MHD_USE_INTERNAL_POLLING_THREAD;
+deprecated("Value MHD_USE_EPOLL_INTERNALLY_LINUX_ONLY is deprecated, use MHD_USE_EPOLL_INTERNAL_THREAD")
+enum MHD_FLAG MHD_USE_EPOLL_INTERNALLY_LINUX_ONLY = MHD_USE_EPOLL | MHD_USE_INTERNAL_POLLING_THREAD;
+deprecated("Value MHD_USE_EPOLL_LINUX_ONLY is deprecated, use MHD_USE_EPOLL")
+enum MHD_FLAG MHD_USE_EPOLL_LINUX_ONLY = 512;
+deprecated("Value MHD_SUPPRESS_DATE_NO_CLOCK is deprecated, use MHD_USE_SUPPRESS_DATE_NO_CLOCK instead")
+enum MHD_FLAG MHD_SUPPRESS_DATE_NO_CLOCK = 128;
+deprecated("Value MHD_USE_POLL_INTERNALLY is deprecated, use MHD_USE_POLL_INTERNAL_THREAD instead")
+enum MHD_FLAG MHD_USE_POLL_INTERNALLY = MHD_USE_POLL | MHD_USE_INTERNAL_POLLING_THREAD;
+deprecated("Flag MHD_USE_PEDANTIC_CHECKS is deprecated, use option MHD_OPTION_STRICT_FOR_CLIENT instead")
+enum MHD_FLAG MHD_USE_PEDANTIC_CHECKS = 32;
+deprecated("Value MHD_USE_SSL is deprecated, use MHD_USE_TLS")
+enum MHD_FLAG MHD_USE_SSL = 2;
 
 /**
  * Type of a callback function used for logging by MHD.
@@ -1247,7 +1229,7 @@ alias MHD_PskServerCredentialsCallback = int function(
  * Note: Available since `MHD_VERSION` 0x00097531
  */
 alias MHD_DAuthBindNonce = int;
-enum
+enum : MHD_DAuthBindNonce
 {
   /**
    * Generated nonces are valid for any request from any client until expired.
@@ -1307,7 +1289,7 @@ enum
  * Passed in the varargs portion of `MHD_start_daemon`.
  */
 alias MHD_OPTION = int;
-enum
+enum : MHD_OPTION
 {
 
   /**
@@ -1744,7 +1726,7 @@ enum
  * which santiy checks should be disabled.
  */
 alias MHD_DisableSanityCheck = int;
-enum
+enum : MHD_DisableSanityCheck
 {
   /**
    * All sanity checks are enabled.
@@ -1792,7 +1774,8 @@ alias MHD_ValueKind = int;
    */
 deprecated("Value MHD_RESPONSE_HEADER_KIND is deprecated and not used")
 enum MHD_RESPONSE_HEADER_KIND = 0;
-enum {
+enum : MHD_ValueKind
+{
   /**
    * HTTP header (request/response).
    */
@@ -1832,7 +1815,7 @@ enum {
  * Ingroup: request
  */
 alias MHD_RequestTerminationCode = int;
-enum
+enum : MHD_RequestTerminationCode
 {
 
   /**
@@ -1891,7 +1874,7 @@ enum
  * Ingroup: request
  */
 alias MHD_ConnectionNotificationCode = int;
-enum
+enum : MHD_ConnectionNotificationCode
 {
 
   /**
@@ -2005,7 +1988,7 @@ struct MHD_IoVec
  * Ingroup: request
  */
 alias MHD_ConnectionInfoType = int;
-enum
+enum : MHD_ConnectionInfoType
 {
   /**
    * What cipher algorithm is being used.
@@ -2100,7 +2083,7 @@ enum
  * information about a daemon is desired.
  */
 alias MHD_DaemonInfoType = int;
-enum
+enum : MHD_DaemonInfoType
 {
   /**
    * No longer supported (will return NULL).
@@ -2504,7 +2487,7 @@ alias MHD_PostDataIterator = MHD_Result function(
  * Flags for special handling of responses.
  */
 alias MHD_ResponseFlags = int;
-enum
+enum : MHD_ResponseFlags
 {
   /**
    * Default: no special flags.
@@ -2592,7 +2575,7 @@ enum
  * MHD options (for future extensions).
  */
 alias MHD_ResponseOptions = int;
-enum
+enum : MHD_ResponseFlags
 {
   /**
    * End of the list of options.
@@ -2608,7 +2591,7 @@ enum
  * Ingroup: response
  */
 alias MHD_ResponseMemoryMode = int;
-enum
+enum : MHD_ResponseMemoryMode
 {
 
   /**
@@ -2653,7 +2636,7 @@ enum
  * idea for what we might want.
  */
 alias MHD_UpgradeAction = int;
-enum
+enum : MHD_UpgradeAction
 {
 
   /**
@@ -2786,7 +2769,7 @@ enum MHD_SHA512_256_DIGEST_SIZE = 32;
  * Note: Available since `MHD_VERSION` 0x00097520
  */
 alias MHD_DigestBaseAlgo = int;
-enum
+enum : MHD_DigestBaseAlgo
 {
   /**
    * Invalid hash algorithm value
@@ -2833,7 +2816,7 @@ enum MHD_DIGEST_AUTH_ALGO3_SESSION =        (1 << 7);
  * Note: Available since `MHD_VERSION` 0x00097523
  */
 alias MHD_DigestAuthAlgo3 = int;
-enum
+enum : MHD_DigestAuthAlgo3
 {
   /**
    * Unknown or wrong algorithm type.
@@ -3000,7 +2983,7 @@ enum MHD_DigestAuthMultiAlgo3
  * Note: Available since `MHD_VERSION` 0x00097537
  */
 alias MHD_DigestAuthUsernameType = int;
-enum
+enum : MHD_DigestAuthUsernameType
 {
   /**
    * No username parameter in in Digest Authorization header.
@@ -3044,7 +3027,7 @@ enum
  * Note: Available since `MHD_VERSION` 0x00097519
  */
 alias MHD_DigestAuthQOP = int;
-enum
+enum : MHD_DigestAuthQOP
 {
   /**
    * Invalid/unknown QOP.
@@ -3084,7 +3067,7 @@ enum
  * Note: Available since `MHD_VERSION` 0x00097530
  */
 alias MHD_DigestAuthMultiQOP = int;
-enum
+enum : MHD_DigestAuthMultiQOP
 {
   /**
    * Invalid/unknown QOP.
@@ -3344,7 +3327,7 @@ struct MHD_DigestAuthUsernameInfo
  * Note: Available since `MHD_VERSION` 0x00097531
  */
 alias MHD_DigestAuthResult = int;
-enum
+enum : MHD_DigestAuthResult
 {
   /**
    * Authentication OK.
@@ -3464,7 +3447,7 @@ char* MHD_digest_auth_get_username(MHD_Connection *connection);
  * `MHD_digest_auth_check_digest2()`, `MHD_queue_auth_fail_response2()`.
  */
 alias MHD_DigestAuthAlgorithm = int;
-enum
+enum : MHD_DigestAuthAlgorithm
 {
 
   /**
@@ -3532,7 +3515,7 @@ struct MHD_BasicAuthInfo
  * set custom options for a particular connection.
  */
 alias MHD_CONNECTION_OPTION = int;
-enum
+enum : MHD_CONNECTION_OPTION
 {
 
   /**
@@ -3600,7 +3583,7 @@ union MHD_DaemonInfo
  * used by `MHD_is_feature_supported()`.
  */
 alias MHD_FEATURE = int;
-enum
+enum : MHD_FEATURE
 {
   /**
    * Get whether messages are supported. If supported then in debug

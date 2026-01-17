@@ -35,7 +35,7 @@ To run the example, execute `dub :example` (preferrably with a compiler that wor
 
 # License
 
-While this package is using the Boost license, the libmicrohttpd library is
+While this package is using the Boost license (BSL-1.0), the libmicrohttpd library is
 licensed LGPL 2.1.
 
 libmicrohttpd Copyright:

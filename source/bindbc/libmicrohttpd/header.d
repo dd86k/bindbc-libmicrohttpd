@@ -324,23 +324,6 @@ enum MHD_HTTP_NO_RESPONSE = 444;
 extern (C):
 
 /**
- * Returns the string reason phrase for a response code.
- *
- * If message string is not available for a status code,
- * "Unknown" string will be returned.
- */
-//const(char) *MHD_get_reason_phrase_for (uint code);
-
-
-/**
- * Returns the length of the string reason phrase for a response code.
- *
- * If message string is not available for a status code,
- * 0 is returned.
- */
-//size_t MHD_get_reason_phrase_len_for (uint code);
-
-/**
  * Flag to be or-ed with MHD_HTTP status code for
  * SHOUTcast.  This will cause the response to begin
  * with the SHOUTcast "ICY" line instead of "HTTP".
@@ -1022,9 +1005,6 @@ enum : MHD_FLAG
    */
   MHD_USE_INTERNAL_POLLING_THREAD = 8,
 
-  //deprecated("Value MHD_USE_SELECT_INTERNALLY is deprecated, use MHD_USE_INTERNAL_POLLING_THREAD instead")
-  MHD_USE_SELECT_INTERNALLY = 8,
-
   /**
    * Run using the IPv6 protocol (otherwise, MHD will just support
    * IPv4).  If you want MHD to support IPv4 and IPv6 using a single
@@ -1165,6 +1145,8 @@ enum : MHD_FLAG
    */
   MHD_USE_INSECURE_TLS_EARLY_DATA = 1u << 18
 }
+deprecated("Value MHD_USE_SELECT_INTERNALLY is deprecated, use MHD_USE_INTERNAL_POLLING_THREAD instead")
+enum MHD_USE_SELECT_INTERNALLY = 8;
 deprecated("Value MHD_USE_SUSPEND_RESUME is deprecated, use MHD_ALLOW_SUSPEND_RESUME instead")
 enum MHD_FLAG MHD_USE_SUSPEND_RESUME = 8192 | MHD_USE_ITC;
 deprecated("Value MHD_USE_EPOLL_TURBO is deprecated, use MHD_USE_TURBO")

@@ -12,6 +12,9 @@ import bindbc.loader.sharedlib;
 
 extern (C) @nogc nothrow
 {
+    alias pMHD_get_reason_phrase_for = const(char)* function(uint code);
+    alias pMHD_get_reason_phrase_len_for = const(char)* function(uint code);
+    
     alias pMHD_start_daemon_va = MHD_Daemon* function(
         uint flags,
         uint16_t port,
@@ -315,6 +318,9 @@ extern (C) @nogc nothrow
 
 public __gshared
 {
+    pMHD_get_reason_phrase_for MHD_get_reason_phrase_for;
+    pMHD_get_reason_phrase_len_for MHD_get_reason_phrase_len_for;
+    
     pMHD_start_daemon_va    MHD_start_daemon_va;
     pMHD_start_daemon   MHD_start_daemon;
     pMHD_quiesce_daemon     MHD_quiesce_daemon;
@@ -453,6 +459,9 @@ public LibMicroHTTPDSupport loadLibMicroHTTPD(const(char)* libname)
     
     size_t ecount = errorCount;
     //LibMicroHTTPDSupport support = LibMicroHTTPDSupport.badLibrary;
+    
+    bindSymbol(lib, cast(void**)&MHD_get_reason_phrase_for, "MHD_get_reason_phrase_for");
+    bindSymbol(lib, cast(void**)&MHD_get_reason_phrase_len_for, "MHD_get_reason_phrase_len_for");
     
     // NOTE: Commented is stuff found in master branch
     bindSymbol(lib, cast(void**)&MHD_start_daemon_va,   "MHD_start_daemon_va");

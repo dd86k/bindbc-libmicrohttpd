@@ -5,6 +5,22 @@ public import bindbc.libmicrohttpd.config;
 
 extern (C):
 
+/**
+ * Returns the string reason phrase for a response code.
+ *
+ * If message string is not available for a status code,
+ * "Unknown" string will be returned.
+ */
+const(char) *MHD_get_reason_phrase_for(uint code);
+
+/**
+ * Returns the length of the string reason phrase for a response code.
+ *
+ * If message string is not available for a status code,
+ * 0 is returned.
+ */
+size_t MHD_get_reason_phrase_len_for(uint code);
+
 /// **************** Daemon handling functions *****************
 
 /**

@@ -1,5 +1,11 @@
 module bindbc.libmicrohttpd.staticcfg;
 
+
+version(BindBC_Static)
+    version = BindBC_LibMicroHTTPD_Static;
+
+version (BindBC_LibMicroHTTPD_Static):
+
 public import bindbc.libmicrohttpd.header;
 public import bindbc.libmicrohttpd.config;
 

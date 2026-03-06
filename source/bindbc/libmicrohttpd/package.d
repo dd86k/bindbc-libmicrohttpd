@@ -3,7 +3,7 @@ module bindbc.libmicrohttpd;
 public import bindbc.libmicrohttpd.header;
 
 version(BindBC_Static)
-	version = BindLibMicroHTTPD_Static;
+	version = BindBC_LibMicroHTTPD_Static;
 
 version(BindBC_LibMicroHTTPD_Static)
 	enum staticBinding = true;

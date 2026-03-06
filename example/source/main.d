@@ -1,11 +1,13 @@
 module main;
 
 import bindbc.libmicrohttpd;
-import bindbc.loader; // for errors
 import core.stdc.stdio;
 import core.stdc.stdlib;
 import core.stdc.stdint;
 import core.stdc.string;
+
+static if (!staticBinding)
+    import bindbc.loader; // for errors
 
 private:
 extern (C):
@@ -62,23 +64,26 @@ MHD_Result ahc_echo(void *cls,
 
 int main(int argc, const(char) **argv)
 {
-    switch (loadLibMicroHTTPD) with (LibMicroHTTPDSupport)
+    static if (!staticBinding)
     {
-        case noLibrary:
-            foreach (const(ErrorInfo) err; errors)
-            {
-                printf("error: %s\n", err.message);
-            }
-            assert(0, "Library not found on system");
-        case badLibrary:
-            foreach (const(ErrorInfo) err; errors)
-            {
-                printf("error: %s %s\n", err.error, err.message);
-            }
-            assert(0, "Could not load some symbols");
-        default:
+        switch (loadLibMicroHTTPD) with (LibMicroHTTPDSupport)
+        {
+            case noLibrary:
+                foreach (const(ErrorInfo) err; errors)
+                {
+                    printf("error: %s\n", err.message);
+                }
+                assert(0, "Library not found on system");
+            case badLibrary:
+                foreach (const(ErrorInfo) err; errors)
+                {
+                    printf("error: %s %s\n", err.error, err.message);
+                }
+                assert(0, "Could not load some symbols");
+            default:
+        }
     }
-    
+
     // Defaults
     ushort port = 8088;
     

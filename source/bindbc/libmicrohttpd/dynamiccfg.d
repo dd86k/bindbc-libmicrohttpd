@@ -1,7 +1,7 @@
 module bindbc.libmicrohttpd.dynamiccfg;
 
 version(BindBC_Static) {}
-else version(BindLibMicroHTTPD_Static) {}
+else version(BindBC_LibMicroHTTPD_Static) {}
 else:
 
 public import bindbc.libmicrohttpd.header;

@@ -17,5 +17,10 @@ bindbc-libmicrohttpd-test-*
 *.lst
 *.pdb
 dub.selections.json
+
 # Old GDC probes
 *.s
+
+# Claude
+.claude/
+CLAUDE.md

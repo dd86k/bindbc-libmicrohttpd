@@ -12,3 +12,11 @@ subConfiguration "bindbc-loader" "yesBC" # needs dependency directive to work
 
 dflags "-betterC" platform="dmd"
 dflags "-betterC" platform="ldc"
+
+configuration "default" {
+}
+
+configuration "static" {
+	versions "BindBC_LibMicroHTTPD_Static"
+	libs "microhttpd"
+}

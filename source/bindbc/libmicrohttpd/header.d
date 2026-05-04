@@ -1143,7 +1143,19 @@ enum : MHD_FLAG
    * Flag set to enable TLS 1.3 early data.  This has
    * security implications, be VERY careful when using this.
    */
-  MHD_USE_INSECURE_TLS_EARLY_DATA = 1u << 18
+  MHD_USE_INSECURE_TLS_EARLY_DATA = 1u << 18,
+
+  /**
+   * Indicates that MHD daemon will be used by application in single-threaded
+   * mode only.  When this flag is set then application must call any MHD
+   * function only within a single thread.
+   * This flag turns off some internal thread-safety and allows MHD making
+   * some of the internal optimisations suitable only for single-threaded
+   * environment.
+   * Not compatible with `MHD_USE_INTERNAL_POLLING_THREAD`.
+   * Note: Available since `MHD_VERSION` 0x00097707
+   */
+  MHD_USE_NO_THREAD_SAFETY = 1u << 19
 }
 deprecated("Value MHD_USE_SELECT_INTERNALLY is deprecated, use MHD_USE_INTERNAL_POLLING_THREAD instead")
 enum MHD_USE_SELECT_INTERNALLY = 8;
@@ -1699,7 +1711,109 @@ enum : MHD_OPTION
    * default priorities.
    * Note: Available since `MHD_VERSION` 0x00097542
    */
-  MHD_OPTION_HTTPS_PRIORITIES_APPEND = 37
+  MHD_OPTION_HTTPS_PRIORITIES_APPEND = 37,
+
+  /**
+   * Sets specified client discipline level (i.e. HTTP protocol parsing
+   * strictness level).
+   *
+   * The following basic values are supported:
+   *  0 - default MHD level, a balance between extra security and broader
+   *      compatibility, as allowed by RFCs for HTTP servers;
+   *  1 - more strict protocol interpretation, within the limits set by
+   *      RFCs for HTTP servers;
+   * -1 - more lenient protocol interpretation, within the limits set by
+   *      RFCs for HTTP servers.
+   * The following extended values could be used as well:
+   *  2 - stricter protocol interpretation, even stricter then allowed
+   *      by RFCs for HTTP servers, however it should be absolutely compatible
+   *      with clients following at least RFCs' "MUST" type of requirements
+   *      for HTTP clients;
+   *  3 - strictest protocol interpretation, even stricter then allowed
+   *      by RFCs for HTTP servers, however it should be absolutely compatible
+   *      with clients following RFCs' "SHOULD" and "MUST" types of requirements
+   *      for HTTP clients;
+   * -2 - more relaxed protocol interpretation, violating RFCs' "SHOULD" type
+   *      of requirements for HTTP servers;
+   * -3 - the most flexible protocol interpretation, beyond RFCs' "MUST" type of
+   *      requirements for HTTP server.
+   * Values higher than "3" or lower than "-3" are interpreted as "3" or "-3"
+   * respectively.
+   *
+   * Higher values are more secure, lower values are more compatible with
+   * various HTTP clients.
+   *
+   * The default value ("0") could be used in most cases.
+   * Value "1" is suitable for highly loaded public servers.
+   * Values "2" and "3" are generally recommended only for testing of HTTP
+   * clients against MHD.
+   * Value "2" may be used for security-centric application, however it is
+   * slight violation of RFCs' requirements.
+   * Negative values are not recommended for public servers.
+   * Values "-1" and "-2" could be used for servers in isolated environment.
+   * Value "-3" is not recommended unless it is absolutely necessary to
+   * communicate with some client(s) with badly broken HTTP implementation.
+   *
+   * This option should be followed by an `int` argument.
+   * Note: Available since `MHD_VERSION` 0x00097701
+   */
+  MHD_OPTION_CLIENT_DISCIPLINE_LVL = 38,
+
+  /**
+   * Specifies value of FD_SETSIZE used by application.  Only for external
+   * polling modes (without MHD internal threads).
+   * Some platforms (FreeBSD, Solaris, W32 etc.) allow overriding of FD_SETSIZE
+   * value.  When polling by select() is used, MHD rejects sockets with numbers
+   * equal or higher than FD_SETSIZE.  If this option is used, MHD treats this
+   * value as a limitation for socket number instead of FD_SETSIZE value which
+   * was used for building MHD.
+   * When external polling is used with `MHD_get_fdset2()` (or `MHD_get_fdset()`
+   * macro) and `MHD_run_from_select()` interfaces, it is recommended to always
+   * use this option.
+   * It is safe to use this option on platforms with fixed FD_SETSIZE (like
+   * GNU/Linux) if system value of FD_SETSIZE is used as the argument.
+   * Can be used only for daemons without `MHD_USE_INTERNAL_POLLING_THREAD`, i.e.
+   * only when external sockets polling is used.
+   * On W32 it is silently ignored, as W32 does not limit the socket number in
+   * fd_sets.
+   * This option should be followed by a positive 'int' argument.
+   * Note: Available since `MHD_VERSION` 0x00097705
+   */
+  MHD_OPTION_APP_FD_SETSIZE = 39,
+
+  /**
+   * Bind daemon to the supplied `struct sockaddr`.  This option should
+   * be followed by two parameters: `socklen_t` the size of memory at the next
+   * pointer and the pointer `const struct sockaddr *`.
+   * Note: the order of the arguments is not the same as for system bind() and
+   * other network functions.
+   * If `MHD_USE_IPv6` is specified, the `struct sockaddr*` should
+   * point to a `struct sockaddr_in6`.
+   * The socket domain (protocol family) is detected from provided
+   * `struct sockaddr`. IP, IPv6 and UNIX sockets are supported (if supported
+   * by the platform). Other types may work occasionally.
+   * Silently ignored if followed by zero size and NULL pointer.
+   * Note: Available since `MHD_VERSION` 0x00097706
+   */
+  MHD_OPTION_SOCK_ADDR_LEN = 40,
+
+  /**
+   * Default nonce timeout value used for Digest Auth.
+   * This option should be followed by an 'unsigned int' argument.
+   * Silently ignored if followed by zero value.
+   * See_Also: `MHD_digest_auth_check3()`, `MHD_digest_auth_check_digest3()`
+   * Note: Available since `MHD_VERSION` 0x00097709
+   */
+  MHD_OPTION_DIGEST_AUTH_DEFAULT_NONCE_TIMEOUT = 41,
+
+  /**
+   * Default maximum nc (nonce count) value used for Digest Auth.
+   * This option should be followed by an `uint32_t` argument.
+   * Silently ignored if followed by zero value.
+   * See_Also: `MHD_digest_auth_check3()`, `MHD_digest_auth_check_digest3()`
+   * Note: Available since `MHD_VERSION` 0x00097709
+   */
+  MHD_OPTION_DIGEST_AUTH_DEFAULT_MAX_NC = 42
 }
 
 

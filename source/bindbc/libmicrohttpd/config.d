@@ -14,17 +14,24 @@ enum LibMicroHTTPDSupport
     v000966 = 0x00096600,
     /// Version 0.9.75, c. Ubuntu 22.04
     v000975 = 0x00097500,
+    /// Version 1.0.1
+    v001001 = 0x01000100,
     /// Latest versions supported by this library
-    latest = v000975,
+    latest = v001001,
 }
 
-version (LibMicroHTTPD_v000975)
+version (LibMicroHTTPD_v001001)
 {
     /// Current version of the library in packed BCD form.
     /// Note: Version number components are coded as Simple Binary-Coded Decimal
     /// (also called Natural BCD or BCD 8421). While they are hexadecimal numbers,
     /// they are parsed as decimal numbers.
     /// Example: 0x01093001 = 1.9.30-1.
+    enum MHD_VERSION = LibMicroHTTPDSupport.v001001;
+}
+else version (LibMicroHTTPD_v000975)
+{
+    /// Ditto
     enum MHD_VERSION = LibMicroHTTPDSupport.v000975;
 }
 else version (LibMicroHTTPD_v000966)
